@@ -9,10 +9,10 @@ defmodule AOC2018_3Test do
   test "test parser" do
     claim = AOC2018_3A.Claim.parse("#1 @ 1,3: 4x5")
     assert claim.id == 1
-    assert claim.x == 1
-    assert claim.y == 3
-    assert claim.w == 4
-    assert claim.h == 5
+    assert claim.xmin == 1
+    assert claim.ymin == 3
+    assert claim.xmax == 5
+    assert claim.ymax == 8
   end
 
   @sample """
