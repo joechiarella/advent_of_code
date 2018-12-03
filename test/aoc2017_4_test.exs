@@ -14,7 +14,7 @@ defmodule AOC2017_4Test do
 
   test "Advent of Code 2017 4B" do
     input = AOCFile.read_and_split("test/data/2017_4a_input.txt")
-    assert AOC2017_4B.solve(input) == 451
+    assert AOC2017_4B.solve(input) == 223
   end
 
   test "valid passphrase 4B" do
