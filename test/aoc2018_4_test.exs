@@ -1,4 +1,4 @@
-defmodule AOC2018_3Test do
+defmodule AOC2018_4Test do
   use ExUnit.Case
 
   @sample """
@@ -27,6 +27,15 @@ defmodule AOC2018_3Test do
   test "Advent of Code 2018 4A" do
     input = File.read!("test/data/2018_4_input.txt")
     assert AOC2018_4.solve(input) == 73646
+  end
+
+  test "Advent of Code 2018 4B sample" do
+    assert AOC2018_4.solveB(@sample) == 4455
+  end
+
+  test "Advent of Code 2018 4B" do
+    input = File.read!("test/data/2018_4_input.txt")
+    assert AOC2018_4.solveB(input) == 4727
   end
 
 
