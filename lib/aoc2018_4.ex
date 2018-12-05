@@ -7,11 +7,7 @@ defmodule AOC2018_4 do
 
   def solveB(input) do
     parse(input)
-    |> Enum.max_by(
-      fn guard ->
-        get_common_minutes(guard)
-        |> Enum.count
-      end)
+    |> Enum.max_by(&get_common_minute_freq/1)
     |> get_solution
   end
 
@@ -22,6 +18,11 @@ defmodule AOC2018_4 do
     |> get_common_minutes
     |> List.first
     |> Kernel.*(id)
+  end
+
+  def get_common_minute_freq(guard) do
+    get_common_minutes(guard)
+    |> Enum.count
   end
 
   def parse(input) do
@@ -37,18 +38,16 @@ defmodule AOC2018_4 do
 
   def group_by_guard(lines) do
     lines
-    |> Enum.chunk_while([],
-      fn line, acc ->
-        if String.contains?(line, "Guard") and !Enum.empty?(acc) do
-          {:cont, Enum.reverse(acc), [line]}
-        else
-          {:cont, [line | acc]}
-        end
-      end,
-      fn
-        [] -> {:cont, []}
-        acc -> {:cont, Enum.reverse(acc), []}
-      end)
+    |> split_at(fn line -> !String.contains?(line, "Guard") end)
+  end
+
+  def split_at([], _) do
+    []
+  end
+
+  def split_at([first | rest], predicate) do
+    {begin, rest} = Enum.split_while(rest, predicate)
+    [[first | begin] | split_at(rest, predicate)]
   end
 
   def create_shift([number_line | times]) do
