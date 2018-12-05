@@ -1,19 +1,15 @@
 defmodule AOC2018_5 do
   def solve(input) do
     String.to_charlist(input)
-    |> reduce2
+    |> Enum.reduce([], &reduce/2)
     |> length
   end
 
-  def reduce2(input) do
-    Enum.reduce(input, [], &reduce2/2)
-  end
-
-  def reduce2(next, [prev | rest]) when abs(prev - next) == 32 do
+  def reduce(next, [prev | rest]) when abs(prev - next) == 32 do
     rest
   end
 
-  def reduce2(next, prev) do
+  def reduce(next, prev) do
     [next | prev]
   end
 
@@ -23,7 +19,7 @@ defmodule AOC2018_5 do
     for c <- 0..25 do
       cl
       |> remove_all(c)
-      |> reduce2
+      |> Enum.reduce([], &reduce/2)
       |> length
     end
     |> Enum.min
