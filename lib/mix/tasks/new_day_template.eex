@@ -1,0 +1,11 @@
+defmodule AOC2018_<%= day %> do
+
+  def solveA(input) do
+    nil
+  end
+
+  def solveB(input) do
+    nil
+  end
+  
+end
