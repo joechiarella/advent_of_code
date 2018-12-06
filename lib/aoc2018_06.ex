@@ -31,14 +31,17 @@ defmodule AOC2018_06 do
   end
 
   def get_nearest(points, i, j) do
-    [first | [ second | _]] = points
-      |> Enum.sort_by(&(distance(&1, i, j)), &<=/2)
-
-      if distance(first, i, j) == distance(second, i, j) do
-        nil
-      else
-        num(first)
-      end
+    points
+    |> Enum.reduce({10000, nil},
+      fn (point, {prev_dist, _} = acc) ->
+        new_dist = distance(point, i, j)
+        cond do
+          new_dist < prev_dist -> {new_dist, num(point)}
+          new_dist == prev_dist -> {new_dist, nil}
+          new_dist > prev_dist -> acc
+        end
+      end)
+    |> elem(1)
   end
 
   def solveB(input, max_distance) do
@@ -69,9 +72,9 @@ defmodule AOC2018_06 do
     |> Enum.min
   end
 
-  def x({{x, y}, _}), do: x
-  def y({{x, y}, _}), do: y
-  def num({{x, y}, num}), do: num
+  def x({{x, _y}, _num}), do: x
+  def y({{_x, y}, _num}), do: y
+  def num({{_x, _y}, num}), do: num
 
   def parse(input) do
     input
