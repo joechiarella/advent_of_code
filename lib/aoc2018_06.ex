@@ -78,7 +78,7 @@ defmodule AOC2018_06 do
 
   def parse(input) do
     input
-    |> String.split("\n")
+    |> String.split(~r{(\r\n|\r|\n)})
     |> Enum.filter(&(String.length(&1) > 0))
     |> Enum.map(&to_point/1)
     |> Enum.with_index
