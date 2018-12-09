@@ -3,7 +3,8 @@ defmodule AOC2018_07.PartA do
   require AOC2018_07.Helpers
   alias AOC2018_07.Helpers
 
-  parsed = Helpers.parse("test/data/2018_07_input.txt")
+  parsed = File.read!("test/data/2018_07_input.txt")
+  |> Helpers.parse
 
   parsed
   |> Enum.each(fn {step, prereqs} ->
@@ -13,15 +14,6 @@ defmodule AOC2018_07.PartA do
 
       Helpers.create_solve_fun(pre, step)
     end)
-
-  steps = Enum.map(parsed, fn {step, _pre} -> step end)
-
-  ?A..?Z
-  |> Enum.reject(fn step -> step in steps end)
-  |> Enum.each(fn step ->
-    pre = %{step => false}
-    Helpers.create_solve_fun(pre, step)
-  end)
 
   def solve(_) do
     []
