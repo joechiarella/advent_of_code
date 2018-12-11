@@ -8,7 +8,7 @@ defmodule AOC2018_11 do
 
   def solveB2(ser) do
     grid = build_grid(ser)
-    for size <- 1..30 do
+    for size <- 1..300 do
       {x, y, max} = solve(grid, size)
       {x, y, size, max}
     end
@@ -17,25 +17,34 @@ defmodule AOC2018_11 do
   end
 
   def solve(grid, box_size) do
-    sol = Enum.map(grid, &(
-      Enum.chunk_every(&1, box_size, 1, :discard)
-      |> Enum.map(fn list -> Enum.sum(list) end)
-      # |> Enum.with_index(1)
-      ))
+    sol = Enum.map(grid, &(sum_chunks(&1, box_size)))
     |> List.zip
     |> Enum.map(fn row ->
       row
       |> Tuple.to_list
-      |> Enum.chunk_every(box_size, 1, :discard)
-      |> Enum.map(fn col -> Enum.sum(col) end)
+      |> sum_chunks(box_size)
     end)
     |> List.flatten
     |> Enum.with_index(1)
-    |> Enum.max_by(fn {score, index} -> score end)
+    |> Enum.max_by(fn {score, _index} -> score end)
     {max, index} = sol
     y = div(index, @gridsize - (box_size - 1)) + 1
     x = rem(index, @gridsize - (box_size - 1))
     {x, y, max}
+  end
+
+  def sum_chunks(row, box_size) do
+    current = Enum.take(row, box_size) |> Enum.sum
+    subs = row
+    adds = Enum.drop(row, box_size)
+    [current | moving_sum(current, adds, subs)]
+  end
+
+  def moving_sum(_, [], _), do: []
+
+  def moving_sum(prev, [add | rest_add], [sub | rest_sub]) do
+    current = prev + add - sub
+    [ current | moving_sum(current, rest_add, rest_sub)]
   end
 
 
