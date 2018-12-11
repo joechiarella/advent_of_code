@@ -1,27 +1,4 @@
 defmodule AOC2018_11 do
-  def solveA(ser) do
-    for x <- 1..298, y <- 1..298 do
-      total = for dx <- 0..2, dy <- 0..2 do
-        get_power_level(x + dx, y + dy, ser)
-      end
-      |> Enum.sum
-      {x, y, total}
-    end
-    |> Enum.max_by(fn {_, _, total} -> total end)
-  end
-
-  def solveB(ser) do
-    for size <- 5..20, x <- 1..301 - size, y <- 1..301 - size do
-      total = for dx <- 0..size - 1, dy <- 0..size - 1 do
-        get_power_level(x + dx, y + dy, ser)
-      end
-      |> Enum.sum
-      {x, y, size, total}
-    end
-    |> Enum.max_by(fn {_, _, _, total} -> total end)
-  end
-
-
   @gridsize 300
 
   def solveA2(ser) do
