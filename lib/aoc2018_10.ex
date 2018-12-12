@@ -7,10 +7,6 @@ defmodule AOC2018_10 do
     |> print
   end
 
-  def solveB(input) do
-    nil
-  end
-
   def iterate(state, 0) do
     state
   end

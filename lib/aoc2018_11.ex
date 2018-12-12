@@ -8,7 +8,7 @@ defmodule AOC2018_11 do
 
   def solveB2(ser) do
     grid = build_grid(ser)
-    for size <- 1..300 do
+    for size <- 5..30 do
       {x, y, max} = solve(grid, size)
       {x, y, size, max}
     end
