@@ -7,6 +7,63 @@ defmodule AOC2018_16 do
     |> Enum.filter(&(String.length(&1) > 0))
     |> Enum.chunk_every(3)
     |> Enum.map(&parse_sample/1)
+    |> Enum.filter(fn input ->
+      length(test(input, all_funs())) >= 3
+    end)
+    |> Enum.count
+  end
+
+
+  def solveB(input, input2) do
+    fun_map =
+      input
+      |> String.split(~r{(\r\n|\r|\n)})
+      |> Enum.filter(&(String.length(&1) > 0))
+      |> Enum.chunk_every(3)
+      |> Enum.map(&parse_sample/1)
+      |> Enum.sort_by(fn {_, [op | _], _} -> op end)
+      |> Enum.chunk_by(fn {_, [op | _], _} -> op end)
+      |> Enum.with_index(0)
+      |> Enum.map(&find_fun/1)
+      |> build_map(%{})
+
+    reg = init_state([0, 0, 0, 0])
+
+    input2
+    |> String.split(~r{(\r\n|\r|\n)})
+    |> Enum.map(&parse_op/1)
+    |> Enum.reduce(reg, fn [opcode | abc], reg ->
+      fun = Map.get(fun_map, opcode)
+      fun.(reg, abc)
+    end)
+    |> Map.get(0)
+  end
+
+  def build_map(potential_mappings, mapping) when length(potential_mappings) == 0 do
+    mapping
+  end
+
+  def build_map(potential_mappings, mapping) do
+    unique = Enum.filter(potential_mappings, fn {list, _} -> length(list) == 1 end)
+
+    mapping = Enum.reduce(unique, mapping, fn {[fun], op}, acc ->
+      Map.put(acc, op, fun)
+    end)
+
+    to_remove = Map.values(mapping)
+
+    potential_mappings -- unique
+    |> Enum.map(fn {funs, op} -> {funs -- to_remove, op} end)
+    |> build_map(mapping)
+  end
+
+  def find_fun({inputs, opcode}) do
+    fun = all_funs()
+    |> Enum.filter(fn fun ->
+      Enum.all?(inputs, fn input -> test(input, fun) end)
+    end)
+
+    {fun, opcode}
   end
 
   def parse_sample([bef, op, aft]) do
@@ -29,6 +86,32 @@ defmodule AOC2018_16 do
       |> String.slice(start..100)
       |> Code.eval_string
     val
+  end
+
+  def test({bef, [opcode | abc], aft}, funs) when is_list(funs) do
+    reg = init_state(bef)
+    funs
+    |> Enum.filter(fn fun -> fun.(reg, abc) == init_state(aft) end)
+  end
+
+  def test({bef, [opcode | abc], aft}, fun) do
+    reg = init_state(bef)
+    fun.(reg, abc) == init_state(aft)
+  end
+
+  def init_state([zero, one, two, three]) do
+    %{
+      0 => zero,
+      1 => one,
+      2 => two,
+      3 => three
+    }
+  end
+
+  def all_funs() do
+    [&addr/2, &addi/2, &mulr/2, &muli/2, &banr/2, &bani/2,
+      &borr/2, &bori/2, &setr/2, &seti/2, &gtir/2, &gtri/2, &gtrr/2,
+      &eqir/2, &eqri/2, &eqrr/2]
   end
 
 # Addition:
@@ -125,8 +208,5 @@ defmodule AOC2018_16 do
     Map.put(reg, c, val)
   end
 
-  def solveB(input) do
-    nil
-  end
 
 end
