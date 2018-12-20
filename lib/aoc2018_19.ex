@@ -6,7 +6,7 @@ defmodule AOC2018_19 do
 
     input
     |> to_map()
-    |> run(ipreg, 0, init_state(0))
+    |> run(ipreg, 0, init_state(0), 500)
   end
 
   def solveB([ipline | input]) do
@@ -14,22 +14,22 @@ defmodule AOC2018_19 do
 
     input
     |> to_map()
-    |> run(ipreg, 0, init_state(1))
+    |> run(ipreg, 0, init_state(1), 500)
   end
 
-  def run(instructions, _, next_inst, state)
-    when next_inst < 0 or next_inst >= 40 do
+  def run(instructions, _, next_inst, state, max_steps)
+    when next_inst < 0 or next_inst >= 40 or max_steps == 0 do
     Map.get(state, 0)
   end
 
-  def run(instructions, ipreg, next_inst, state) do
+  def run(instructions, ipreg, next_inst, state, max_steps) do
     state = Map.put(state, ipreg, next_inst)
     inst = Map.get(instructions, next_inst)
-    # IO.puts "exec #{next_inst} #{inspect inst} #{inspect state}"
+    IO.puts "exec #{next_inst} #{inspect inst} #{inspect state}"
 
     state = exec(inst, state)
     next_inst = Map.get(state, ipreg) + 1
-    run(instructions, ipreg, next_inst, state)
+    run(instructions, ipreg, next_inst, state, max_steps - 1)
   end
 
   def exec([inst | abc], state) do
