@@ -19,9 +19,17 @@ defmodule AOC2018_15Test do
   #######
   """
 
-  test "parsing" do
+  test "order" do
     state = AOC2018_15.parse(@sample1)
-    IO.inspect state
+    order = AOC2018_15.get_turn_order(state)
+    assert order == [0, 1, 2, 3]
+  end
+
+  test "get targets" do
+    state = AOC2018_15.parse(@sample1)
+    elf = Map.get(state.units, 0)
+    targets = AOC2018_15.get_targets(state, elf)
+    assert targets == [1, 2, 3]
   end
 
   @tag :skip
