@@ -21,6 +21,10 @@ defmodule AOC2018_15 do
       }
     end
 
+    def get_tile(state, location) do
+      Map.get(state.board, location, :wall)
+    end
+
     def add_unit(state, location, type) do
       id = Enum.count(state.units)
       unit = %Unit{id: id, location: location, type: type}
@@ -28,6 +32,22 @@ defmodule AOC2018_15 do
         state |
         units: Map.put(state.units, id, unit)
       }
+    end
+
+    def get_unit(state, id) do
+      Map.get(state.units, id)
+    end
+
+    def get_adjacent(state, {x, y}) do
+      [{x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}]
+      |> Enum.filter(fn loc -> State.get_tile(state, loc) == :cave end)
+    end
+
+    def get_occupied(state) do
+      state.units
+      |> Map.values
+      |> Enum.filter(&Unit.is_alive/1)
+      |> Enum.map(fn unit -> unit.location end)
     end
   end
 
@@ -51,7 +71,33 @@ defmodule AOC2018_15 do
     |> Enum.map(&(&1.id))
   end
 
-  def sort(units) do
+  def in_range(state, unit, targets) do
+    target_locs =
+      targets
+      |> Enum.map(&(State.get_unit(state, &1)))
+      |> Enum.map(&(&1.location))
+
+    occupied = State.get_occupied(state)
+      |> List.delete(unit.location)
+
+    in_range =
+      target_locs
+      |> Enum.map(&(State.get_adjacent(state, &1)))
+      |> List.flatten
+      |> Enum.uniq
+      |> Enum.reject(fn loc -> Enum.member?(target_locs, loc) end)
+      |> sort()
+
+
+
+  end
+
+  def sort([{_x, _y} | _] = locations) do
+    locations
+    |> Enum.sort_by(fn {x, y} -> {y, x} end)
+  end
+
+  def sort([%Unit{} | _] = units) do
     units
     |> Enum.sort_by(fn %Unit{location: {x, y}} -> {y, x} end)
   end
