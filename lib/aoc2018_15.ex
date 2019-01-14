@@ -62,6 +62,8 @@ defmodule AOC2018_15 do
     |> Enum.map(&(&1.id))
   end
 
+  # Each unit begins its turn by identifying all possible targets (enemy units).
+  # If no targets remain, combat ends.
   def get_targets(state, unit) do
     state.units
     |> Map.values()
@@ -71,24 +73,33 @@ defmodule AOC2018_15 do
     |> Enum.map(&(&1.id))
   end
 
-  def in_range(state, unit, targets) do
-    target_locs =
-      targets
-      |> Enum.map(&(State.get_unit(state, &1)))
-      |> Enum.map(&(&1.location))
+  # Then, the unit identifies all of the open squares (.) that are in range of
+  # each target; these are the squares which are adjacent (immediately up, down,
+  # left, or right) to any target and which aren't already occupied by a wall or
+  # another unit.
+  def in_range(state, targets) do
+    targets
+    |> Enum.map(&(State.get_unit(state, &1)))
+    |> Enum.map(&(&1.location))
+    |> Enum.map(&(State.get_adjacent(state, &1)))
+    |> List.flatten
+    |> Enum.uniq
+    |> sort()
+  end
 
+  def unoccupied(state, squares) do
     occupied = State.get_occupied(state)
-      |> List.delete(unit.location)
 
-    in_range =
-      target_locs
-      |> Enum.map(&(State.get_adjacent(state, &1)))
-      |> List.flatten
-      |> Enum.uniq
-      |> Enum.reject(fn loc -> Enum.member?(target_locs, loc) end)
-      |> sort()
+    squares
+    |> Enum.reject(fn loc -> Enum.member?(occupied, loc) end)
+  end
 
-
+  def get_shortest_path(state, start, finish) do
+    seen = %{start => []}
+    seen
+    |> Enum.map(fn {location, path} ->
+      State.get_adjacent(state, location)
+    end)
 
   end
 

@@ -41,10 +41,22 @@ defmodule AOC2018_15Test do
 
   test "in range" do
     state = AOC2018_15.parse(@sample1)
-    elf = Map.get(state.units, 0)
     targets = [1, 2, 3]
-    in_range = AOC2018_15.in_range(state, elf, targets)
+    in_range = AOC2018_15.in_range(state, targets)
     assert in_range == [{3, 1}, {5, 1}, {2, 2}, {5, 2}, {1, 3}, {3, 3}]
+  end
+
+  test "unoccupied" do
+    state = AOC2018_15.parse(@sample1)
+    in_range = [{4, 1}, {5, 1}, {2, 2}, {5, 2}, {1, 3}, {3, 3}]
+    unocc = AOC2018_15.unoccupied(state, in_range)
+    assert unocc = [{5, 1}, {2, 2}, {5, 2}, {1, 3}, {3, 3}]
+  end
+
+  test "reachable" do
+    state = AOC2018_15.parse(@sample1)
+    assert AOC2018_15.get_shortest_path(state, {1, 1}, {3, 1}) == [{2, 1}, {3, 1}]
+    assert AOC2018_15.get_shortest_path(state, {1, 1}, {5, 1}) == :none
   end
 
   @tag :skip
