@@ -38,6 +38,17 @@ defmodule AOC2018_15 do
       Map.get(state.units, id)
     end
 
+    def move(state, unit, location) do
+      %State{
+        state |
+        units: Map.put(state.units, unit.id,
+          %Unit{
+            unit |
+            location: location
+          })
+      }
+    end
+
     def get_adjacent(state, {x, y}) do
       [{x, y - 1}, {x - 1, y}, {x + 1, y}, {x, y + 1}]
       |> Enum.filter(fn loc -> State.get_tile(state, loc) == :cave end)
@@ -60,6 +71,13 @@ defmodule AOC2018_15 do
     |> Map.values()
     |> sort()
     |> Enum.map(&(&1.id))
+  end
+
+  def take_turn(state, unit) do
+    targets = get_targets(state, unit)
+    in_range = in_range(state, targets)
+    nearest = nearest(state, unit.location, in_range)
+    State.move(state, unit, nearest)
   end
 
   # Each unit begins its turn by identifying all possible targets (enemy units).

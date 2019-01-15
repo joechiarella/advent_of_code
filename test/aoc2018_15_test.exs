@@ -65,6 +65,14 @@ defmodule AOC2018_15Test do
     assert nearest == {2, 1}
   end
 
+  test "take turn (move)" do
+    state = AOC2018_15.parse(@sample1)
+    elf = Map.get(state.units, 0)
+    assert elf.location == {1, 1}
+    state = AOC2018_15.take_turn(state, elf)
+    assert Map.get(state.units, 0).location == {2, 1}
+  end
+
   @tag :skip
   test "solves part 2 (sample)" do
     assert AOC2018_15.solveB(@sample) == :ok
