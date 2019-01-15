@@ -53,10 +53,16 @@ defmodule AOC2018_15Test do
     assert unocc = [{5, 1}, {2, 2}, {5, 2}, {1, 3}, {3, 3}]
   end
 
-  test "reachable" do
+  test "shortest path" do
     state = AOC2018_15.parse(@sample1)
     assert AOC2018_15.get_shortest_path(state, {1, 1}, {3, 1}) == [{2, 1}, {3, 1}]
     assert AOC2018_15.get_shortest_path(state, {1, 1}, {5, 1}) == :none
+  end
+
+  test "nearest" do
+    state = AOC2018_15.parse(@sample1)
+    nearest = AOC2018_15.nearest(state, {1, 1}, [{5, 1}, {2, 2}, {5, 2}, {1, 3}, {3, 3}])
+    assert nearest == {2, 1}
   end
 
   @tag :skip

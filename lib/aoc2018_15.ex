@@ -39,7 +39,7 @@ defmodule AOC2018_15 do
     end
 
     def get_adjacent(state, {x, y}) do
-      [{x + 1, y}, {x - 1, y}, {x, y + 1}, {x, y - 1}]
+      [{x, y - 1}, {x - 1, y}, {x + 1, y}, {x, y + 1}]
       |> Enum.filter(fn loc -> State.get_tile(state, loc) == :cave end)
     end
 
@@ -95,12 +95,61 @@ defmodule AOC2018_15 do
   end
 
   def get_shortest_path(state, start, finish) do
-    seen = %{start => []}
-    seen
-    |> Enum.map(fn {location, path} ->
-      State.get_adjacent(state, location)
-    end)
+    seen = %{start => 0}
+    wave(state, seen, [start], 0, finish)
+  end
 
+  def wave(_, _, [], _, _) do
+    :none
+  end
+
+  def wave(state, seen, latest, iter, finish) do
+    adjacent =
+      latest
+      |> Enum.map(fn loc -> State.get_adjacent(state, loc) end)
+      |> List.flatten()
+
+    if(finish in adjacent) do
+      [finish | traceback(seen, finish, iter)]
+      |> Enum.reverse
+    else
+      latest =
+        unoccupied(state, adjacent)
+        |> Enum.filter(fn loc ->
+          !Map.has_key?(seen, loc)
+        end)
+
+      seen =
+        for loc <- latest, into: seen do
+          {loc, iter + 1}
+        end
+
+      wave(state, seen, latest, iter + 1, finish)
+    end
+  end
+
+  def traceback(seen, {x, y}, 0) do
+    []
+  end
+
+  def traceback(seen, {x, y}, iter) do
+    adj = [{x, y - 1}, {x - 1, y}, {x + 1, y}, {x, y + 1}]
+    next =
+      Enum.find(adj, fn loc ->
+        Map.get(seen, loc) == iter
+      end)
+    [next | traceback(seen, next, iter - 1)]
+  end
+
+  def nearest(state, start, dests) do
+    dests
+    |> Enum.map(fn dest -> get_shortest_path(state, start, dest) end)
+    |> Enum.filter(fn path -> path != :none end)
+    |> Enum.group_by(&Kernel.length/1, &Kernel.hd/1)
+    |> Enum.min
+    |> Kernel.elem(1)
+    |> sort()
+    |> Kernel.hd()
   end
 
   def sort([{_x, _y} | _] = locations) do
