@@ -39,12 +39,14 @@ defmodule AOC2018_15Test do
     state = AOC2018_15.parse(@sample1)
     elf = Map.get(state.units, 0)
     targets = AOC2018_15.get_targets(state, elf)
+      |> Enum.map(&(&1.id))
     assert targets == [1, 2, 3]
   end
 
   test "in range" do
     state = AOC2018_15.parse(@sample1)
-    targets = [1, 2, 3]
+    elf = Map.get(state.units, 0)
+    targets = AOC2018_15.get_targets(state, elf)
     in_range = AOC2018_15.in_range(state, targets)
     assert in_range == [{3, 1}, {5, 1}, {2, 2}, {5, 2}, {1, 3}, {3, 3}]
   end
@@ -72,7 +74,7 @@ defmodule AOC2018_15Test do
     state = AOC2018_15.parse(@sample1)
     elf = Map.get(state.units, 0)
     assert elf.location == {1, 1}
-    state = AOC2018_15.take_turn(state, elf)
+    state = AOC2018_15.move(state, elf)
     assert Map.get(state.units, 0).location == {2, 1}
   end
 

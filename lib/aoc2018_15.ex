@@ -77,11 +77,40 @@ defmodule AOC2018_15 do
     state
     |> get_turn_order
     |> Enum.reduce(state, fn unit, state ->
-      take_turn(state, unit)
+      state
+      |> move(unit)
+      |> attack(unit)
     end)
   end
+  # To attack, the unit first determines all of the targets that are in range of it by
+  # being immediately adjacent to it. If there are no such targets, the unit ends its
+  # turn. Otherwise, the adjacent target with the fewest hit points is selected;
+  # in a tie, the adjacent target with the fewest hit points which is first in reading
+  # order is selected.
+  def attack(state, unit) do
+    in_range = State.get_adjacent(state, unit.location)
 
-  def take_turn(state, unit) do
+    targets =
+      state
+      |> get_targets(unit)
+      |> Enum.filter(fn target ->
+        target.location in in_range
+      end)
+      |> Enum.sort_by(fn target ->
+        {x, y} = target.location
+        {target.hp, y, x}
+      end)
+
+    if targets == [] do
+      state
+    else
+      # attack(state, hd(targets))
+    end
+
+
+  end
+
+  def move(state, unit) do
     targets = get_targets(state, unit)
     in_range = in_range(state, targets)
     if unit.location in in_range do
@@ -105,7 +134,6 @@ defmodule AOC2018_15 do
     |> Enum.filter(&(Unit.is_type(&1, unit.type)))
     |> Enum.filter(&Unit.is_alive/1)
     |> sort()
-    |> Enum.map(&(&1.id))
   end
 
   # Then, the unit identifies all of the open squares (.) that are in range of
@@ -114,7 +142,6 @@ defmodule AOC2018_15 do
   # another unit.
   def in_range(state, targets) do
     targets
-    |> Enum.map(&(State.get_unit(state, &1)))
     |> Enum.map(&(&1.location))
     |> Enum.map(&(State.get_adjacent(state, &1)))
     |> List.flatten
