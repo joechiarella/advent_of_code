@@ -21,7 +21,10 @@ defmodule AOC2018_15Test do
 
   test "order" do
     state = AOC2018_15.parse(@sample1)
-    order = AOC2018_15.get_turn_order(state)
+    order =
+      AOC2018_15.get_turn_order(state)
+      |> Enum.map(&(&1.id))
+
     assert order == [0, 1, 2, 3]
   end
 
@@ -71,6 +74,97 @@ defmodule AOC2018_15Test do
     assert elf.location == {1, 1}
     state = AOC2018_15.take_turn(state, elf)
     assert Map.get(state.units, 0).location == {2, 1}
+  end
+
+  @movementsample """
+  #########
+  #G..G..G#
+  #.......#
+  #.......#
+  #G..E..G#
+  #.......#
+  #.......#
+  #G..G..G#
+  #########
+  """
+
+  test "take turns (move)" do
+    state = AOC2018_15.parse(@movementsample)
+    state = AOC2018_15.take_turn(state)
+
+    #########
+    #.G...G.#
+    #...G...#
+    #...E..G#
+    #.G.....#
+    #.......#
+    #G..G..G#
+    #.......#
+    #########
+
+    assert Map.get(state.units, 0).location == {2, 1}
+    assert Map.get(state.units, 1).location == {4, 2}
+    assert Map.get(state.units, 2).location == {6, 1}
+    assert Map.get(state.units, 3).location == {2, 4}
+    assert Map.get(state.units, 4).location == {4, 3}
+    assert Map.get(state.units, 5).location == {7, 3}
+    assert Map.get(state.units, 6).location == {1, 6}
+    assert Map.get(state.units, 7).location == {4, 6}
+    assert Map.get(state.units, 8).location == {7, 6}
+
+    #########
+    #..G.G..#
+    #...G...#
+    #.G.E.G.#
+    #.......#
+    #G..G..G#
+    #.......#
+    #.......#
+    #########
+
+    state = AOC2018_15.take_turn(state)
+    assert Map.get(state.units, 0).location == {3, 1}
+    assert Map.get(state.units, 1).location == {4, 2}
+    assert Map.get(state.units, 2).location == {5, 1}
+    assert Map.get(state.units, 3).location == {2, 3}
+    assert Map.get(state.units, 4).location == {4, 3}
+    assert Map.get(state.units, 5).location == {6, 3}
+    assert Map.get(state.units, 6).location == {1, 5}
+    assert Map.get(state.units, 7).location == {4, 5}
+    assert Map.get(state.units, 8).location == {7, 5}
+
+    #########
+    #.......#
+    #..GGG..#
+    #..GEG..#
+    #G..G...#
+    #......G#
+    #.......#
+    #.......#
+    #########
+
+    state = AOC2018_15.take_turn(state)
+    assert Map.get(state.units, 0).location == {3, 2}
+    assert Map.get(state.units, 1).location == {4, 2}
+    assert Map.get(state.units, 2).location == {5, 2}
+    assert Map.get(state.units, 3).location == {3, 3}
+    assert Map.get(state.units, 4).location == {4, 3}
+    assert Map.get(state.units, 5).location == {5, 3}
+    assert Map.get(state.units, 6).location == {1, 4}
+    assert Map.get(state.units, 7).location == {4, 4}
+    assert Map.get(state.units, 8).location == {7, 5}
+
+    state = AOC2018_15.take_turn(state)
+    assert Map.get(state.units, 0).location == {3, 2}
+    assert Map.get(state.units, 1).location == {4, 2}
+    assert Map.get(state.units, 2).location == {5, 2}
+    assert Map.get(state.units, 3).location == {3, 3}
+    assert Map.get(state.units, 4).location == {4, 3}
+    assert Map.get(state.units, 5).location == {5, 3}
+    assert Map.get(state.units, 6).location == {1, 4}
+    assert Map.get(state.units, 7).location == {4, 4}
+    assert Map.get(state.units, 8).location == {7, 5}
+
   end
 
   @tag :skip

@@ -70,14 +70,31 @@ defmodule AOC2018_15 do
     state.units
     |> Map.values()
     |> sort()
-    |> Enum.map(&(&1.id))
+    # |> Enum.map(&(&1.id))
+  end
+
+  def take_turn(state) do
+    state
+    |> get_turn_order
+    |> Enum.reduce(state, fn unit, state ->
+      take_turn(state, unit)
+    end)
   end
 
   def take_turn(state, unit) do
     targets = get_targets(state, unit)
     in_range = in_range(state, targets)
-    nearest = nearest(state, unit.location, in_range)
-    State.move(state, unit, nearest)
+    if unit.location in in_range do
+      state
+    else
+      in_range = unoccupied(state, in_range)
+      if in_range == [] do
+        state
+      else
+        nearest = nearest(state, unit.location, in_range)
+        State.move(state, unit, nearest)
+      end
+    end
   end
 
   # Each unit begins its turn by identifying all possible targets (enemy units).
@@ -126,6 +143,7 @@ defmodule AOC2018_15 do
       latest
       |> Enum.map(fn loc -> State.get_adjacent(state, loc) end)
       |> List.flatten()
+      |> Enum.uniq()
 
     if(finish in adjacent) do
       [finish | traceback(seen, finish, iter)]
