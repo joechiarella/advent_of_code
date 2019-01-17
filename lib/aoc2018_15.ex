@@ -9,6 +9,20 @@ defmodule AOC2018_15 do
     def is_type(%Unit{type: unit_type}, type) do
       unit_type != type
     end
+
+    def move(unit, loc) do
+      %Unit{
+        unit |
+        location: loc
+      }
+    end
+
+    def attack(unit, damage) do
+      %Unit{
+        unit |
+        hp: unit.hp - damage
+      }
+    end
   end
 
   defmodule State do
@@ -28,25 +42,22 @@ defmodule AOC2018_15 do
     def add_unit(state, location, type) do
       id = Enum.count(state.units)
       unit = %Unit{id: id, location: location, type: type}
-      %State{
-        state |
-        units: Map.put(state.units, id, unit)
-      }
+      update_unit(state, unit)
     end
 
     def get_unit(state, id) do
       Map.get(state.units, id)
     end
 
-    def move(state, unit, location) do
+    def update_unit(state, unit) do
       %State{
         state |
-        units: Map.put(state.units, unit.id,
-          %Unit{
-            unit |
-            location: location
-          })
+        units: Map.put(state.units, unit.id, unit)
       }
+    end
+
+    def move(state, unit, location) do
+      State.update_unit(state, Unit.move(unit, location))
     end
 
     def get_adjacent(state, {x, y}) do
@@ -60,26 +71,54 @@ defmodule AOC2018_15 do
       |> Enum.filter(&Unit.is_alive/1)
       |> Enum.map(fn unit -> unit.location end)
     end
+
+    def attack(state, unit) do
+      update_unit(state, Unit.attack(unit, 3))
+    end
   end
 
   def solveA(input) do
-    nil
+    state = parse(input)
+    take_turn(state, 1)
+  end
+
+  def take_turn(state, turns) do
+    IO.puts "BEGIN TURN #{turns}"
+    if game_over?(state) do
+      4
+      # get_answer(state, turns)
+    else
+      state = take_turn(state)
+      take_turn(state, turns + 1)
+    end
+  end
+
+  def game_over?(state) do
+    living =
+      state.units
+      |> Map.values()
+      |> Enum.filter(&Unit.is_alive/1)
+      |> Enum.group_by(fn unit -> unit.type end)
+
+    Map.size(living) == 1
   end
 
   def get_turn_order(state) do
     state.units
     |> Map.values()
+    |> Enum.filter(&Unit.is_alive/1)
     |> sort()
     # |> Enum.map(&(&1.id))
   end
 
   def take_turn(state) do
+
     state
     |> get_turn_order
     |> Enum.reduce(state, fn unit, state ->
       state
       |> move(unit)
-      |> attack(unit)
+      |> attack(unit.id)
     end)
   end
   # To attack, the unit first determines all of the targets that are in range of it by
@@ -87,7 +126,8 @@ defmodule AOC2018_15 do
   # turn. Otherwise, the adjacent target with the fewest hit points is selected;
   # in a tie, the adjacent target with the fewest hit points which is first in reading
   # order is selected.
-  def attack(state, unit) do
+  def attack(state, unit_id) do
+    unit = State.get_unit(state, unit_id)
     in_range = State.get_adjacent(state, unit.location)
 
     targets =
@@ -102,25 +142,29 @@ defmodule AOC2018_15 do
       end)
 
     if targets == [] do
+      IO.puts "No targets in range"
       state
     else
-      # attack(state, hd(targets))
+      target = hd(targets)
+      IO.puts "Attacking #{target.id} -> #{target.hp - 3}"
+      State.attack(state, target)
     end
-
-
   end
 
   def move(state, unit) do
     targets = get_targets(state, unit)
     in_range = in_range(state, targets)
     if unit.location in in_range do
+      IO.puts "Unit #{unit.id} already in range of target"
       state
     else
       in_range = unoccupied(state, in_range)
       if in_range == [] do
+        IO.puts "Unit #{unit.id} has no targets"
         state
       else
         nearest = nearest(state, unit.location, in_range)
+        IO.puts "Moving #{unit.id} to #{inspect nearest}"
         State.move(state, unit, nearest)
       end
     end

@@ -169,6 +169,106 @@ defmodule AOC2018_15Test do
 
   end
 
+  @game """
+  #######
+  #.G...#
+  #...EG#
+  #.#.#G#
+  #..G#E#
+  #.....#
+  #######
+  """
+
+  test "full game" do
+    state = AOC2018_15.parse(@game)
+
+    assert AOC2018_15.State.get_unit(state, 0).location == {2, 1}
+    assert AOC2018_15.State.get_unit(state, 1).location == {4, 2}
+    assert AOC2018_15.State.get_unit(state, 2).location == {5, 2}
+    assert AOC2018_15.State.get_unit(state, 3).location == {5, 3}
+    assert AOC2018_15.State.get_unit(state, 4).location == {3, 4}
+    assert AOC2018_15.State.get_unit(state, 5).location == {5, 4}
+
+    # After 1 round:
+    #######
+    #..G..#   G(200)
+    #...EG#   E(197), G(197)
+    #.#G#G#   G(200), G(197)
+    #...#E#   E(197)
+    #.....#
+    #######
+
+    state = AOC2018_15.take_turn(state)
+    assert AOC2018_15.State.get_unit(state, 0).location == {3, 1}
+    assert AOC2018_15.State.get_unit(state, 1).location == {4, 2}
+    assert AOC2018_15.State.get_unit(state, 2).location == {5, 2}
+    assert AOC2018_15.State.get_unit(state, 3).location == {5, 3}
+    assert AOC2018_15.State.get_unit(state, 4).location == {3, 3}
+    assert AOC2018_15.State.get_unit(state, 5).location == {5, 4}
+
+    assert AOC2018_15.State.get_unit(state, 0).hp == 200
+    assert AOC2018_15.State.get_unit(state, 1).hp == 197
+    assert AOC2018_15.State.get_unit(state, 2).hp == 197
+    assert AOC2018_15.State.get_unit(state, 3).hp == 197
+    assert AOC2018_15.State.get_unit(state, 4).hp == 200
+    assert AOC2018_15.State.get_unit(state, 5).hp == 197
+
+    # After 2 rounds:
+    #######
+    #...G.#   G(200)
+    #..GEG#   G(200), E(188), G(194)
+    #.#.#G#   G(194)
+    #...#E#   E(194)
+    #.....#
+    #######
+    state = AOC2018_15.take_turn(state)
+    assert AOC2018_15.State.get_unit(state, 0).location == {4, 1}
+    assert AOC2018_15.State.get_unit(state, 1).location == {4, 2}
+    assert AOC2018_15.State.get_unit(state, 2).location == {5, 2}
+    assert AOC2018_15.State.get_unit(state, 3).location == {5, 3}
+    assert AOC2018_15.State.get_unit(state, 4).location == {3, 2}
+    assert AOC2018_15.State.get_unit(state, 5).location == {5, 4}
+
+    assert AOC2018_15.State.get_unit(state, 0).hp == 200
+    assert AOC2018_15.State.get_unit(state, 1).hp == 188
+    assert AOC2018_15.State.get_unit(state, 2).hp == 194
+    assert AOC2018_15.State.get_unit(state, 3).hp == 194
+    assert AOC2018_15.State.get_unit(state, 4).hp == 200
+    assert AOC2018_15.State.get_unit(state, 5).hp == 194
+
+    # After 23 rounds:
+    #######
+    #...G.#   G(200)
+    #..G.G#   G(200), G(131)
+    #.#.#G#   G(131)
+    #...#E#   E(131)
+    #.....#
+    #######
+
+    state =
+      3..23
+      |> Enum.reduce(state, fn _, state ->
+        AOC2018_15.take_turn(state)
+      end)
+    assert AOC2018_15.State.get_unit(state, 0).location == {4, 1}
+    assert AOC2018_15.State.get_unit(state, 1).location == {4, 2}
+    assert AOC2018_15.State.get_unit(state, 2).location == {5, 2}
+    assert AOC2018_15.State.get_unit(state, 3).location == {5, 3}
+    assert AOC2018_15.State.get_unit(state, 4).location == {3, 2}
+    assert AOC2018_15.State.get_unit(state, 5).location == {5, 4}
+
+    assert AOC2018_15.State.get_unit(state, 0).hp == 200
+    assert AOC2018_15.State.get_unit(state, 1).hp <= 0
+    assert AOC2018_15.State.get_unit(state, 2).hp == 131
+    assert AOC2018_15.State.get_unit(state, 3).hp == 131
+    assert AOC2018_15.State.get_unit(state, 4).hp == 200
+    assert AOC2018_15.State.get_unit(state, 5).hp == 131
+  end
+
+  test "full game auto" do
+    assert AOC2018_15.solveA(@game) == 27730
+  end
+
   @tag :skip
   test "solves part 2 (sample)" do
     assert AOC2018_15.solveB(@sample) == :ok
