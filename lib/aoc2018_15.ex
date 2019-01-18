@@ -56,6 +56,10 @@ defmodule AOC2018_15 do
       }
     end
 
+    def move(state, _, :none) do
+      state
+    end
+
     def move(state, unit, location) do
       State.update_unit(state, Unit.move(unit, location))
     end
@@ -84,13 +88,25 @@ defmodule AOC2018_15 do
 
   def take_turn(state, turns) do
     IO.puts "BEGIN TURN #{turns}"
+    IO.inspect state.units
     if game_over?(state) do
-      4
-      # get_answer(state, turns)
+      get_answer(state, turns)
     else
       state = take_turn(state)
       take_turn(state, turns + 1)
     end
+  end
+
+  def get_answer(state, turns) do
+    hp =
+      state.units
+      |> Map.values()
+      |> Enum.filter(&Unit.is_alive/1)
+      |> Enum.map(fn unit -> unit.hp end)
+      |> Enum.sum
+
+      IO.puts "hp: #{hp} turns: #{turns - 1}"
+      hp * (turns - 2)
   end
 
   def game_over?(state) do
@@ -108,17 +124,17 @@ defmodule AOC2018_15 do
     |> Map.values()
     |> Enum.filter(&Unit.is_alive/1)
     |> sort()
-    # |> Enum.map(&(&1.id))
+    |> Enum.map(&(&1.id))
   end
 
   def take_turn(state) do
 
     state
     |> get_turn_order
-    |> Enum.reduce(state, fn unit, state ->
+    |> Enum.reduce(state, fn unit_id, state ->
       state
-      |> move(unit)
-      |> attack(unit.id)
+      |> move(unit_id)
+      |> attack(unit_id)
     end)
   end
   # To attack, the unit first determines all of the targets that are in range of it by
@@ -128,44 +144,62 @@ defmodule AOC2018_15 do
   # order is selected.
   def attack(state, unit_id) do
     unit = State.get_unit(state, unit_id)
-    in_range = State.get_adjacent(state, unit.location)
 
-    targets =
-      state
-      |> get_targets(unit)
-      |> Enum.filter(fn target ->
-        target.location in in_range
-      end)
-      |> Enum.sort_by(fn target ->
-        {x, y} = target.location
-        {target.hp, y, x}
-      end)
-
-    if targets == [] do
-      IO.puts "No targets in range"
+    if !Unit.is_alive(unit) do
+      IO.puts "Unit #{unit.id} is dead, cannot attack"
       state
     else
-      target = hd(targets)
-      IO.puts "Attacking #{target.id} -> #{target.hp - 3}"
-      State.attack(state, target)
+      in_range = State.get_adjacent(state, unit.location)
+
+      targets =
+        state
+        |> get_targets(unit)
+        |> Enum.filter(fn target ->
+          target.location in in_range
+        end)
+        |> Enum.sort_by(fn target ->
+          {x, y} = target.location
+          {target.hp, y, x}
+        end)
+
+      if targets == [] do
+        IO.puts "No targets in range"
+        state
+      else
+        target = hd(targets)
+        IO.puts "Attacking #{target.id} -> #{target.hp - 3}"
+        State.attack(state, target)
+      end
     end
   end
 
-  def move(state, unit) do
-    targets = get_targets(state, unit)
-    in_range = in_range(state, targets)
-    if unit.location in in_range do
-      IO.puts "Unit #{unit.id} already in range of target"
+  def move(state, unit_id) do
+    unit = State.get_unit(state, unit_id)
+
+    if !Unit.is_alive(unit) do
+      IO.puts "Unit #{unit.id} is dead, cannot move"
       state
     else
-      in_range = unoccupied(state, in_range)
-      if in_range == [] do
-        IO.puts "Unit #{unit.id} has no targets"
+      targets = get_targets(state, unit)
+      if targets == [] do
+        IO.puts "NO TARGETS, GAME OVER"
         state
       else
-        nearest = nearest(state, unit.location, in_range)
-        IO.puts "Moving #{unit.id} to #{inspect nearest}"
-        State.move(state, unit, nearest)
+        in_range = in_range(state, targets)
+        if unit.location in in_range do
+          IO.puts "Unit #{unit.id} already in range of target"
+          state
+        else
+          in_range = unoccupied(state, in_range)
+          if in_range == [] do
+            IO.puts "Unit #{unit.id} has no targets"
+            state
+          else
+            nearest = nearest(state, unit.location, in_range)
+            IO.puts "Moving #{unit.id} to #{inspect nearest}"
+            State.move(state, unit, nearest)
+          end
+        end
       end
     end
   end
@@ -249,14 +283,25 @@ defmodule AOC2018_15 do
   end
 
   def nearest(state, start, dests) do
-    dests
-    |> Enum.map(fn dest -> get_shortest_path(state, start, dest) end)
-    |> Enum.filter(fn path -> path != :none end)
-    |> Enum.group_by(&Kernel.length/1, &Kernel.hd/1)
-    |> Enum.min
-    |> Kernel.elem(1)
-    |> sort()
-    |> Kernel.hd()
+    reachable =
+      dests
+      |> Enum.map(fn dest -> get_shortest_path(state, start, dest) end)
+      |> Enum.filter(fn path -> path != :none end)
+
+    if length(reachable) == 0 do
+      :none
+    else
+      reachable
+      |> Enum.group_by(&Kernel.length/1, &Kernel.hd/1)
+      |> Enum.min
+      |> Kernel.elem(1)
+      |> sort()
+      |> Kernel.hd()
+    end
+  end
+
+  def sort([]) do
+    []
   end
 
   def sort([{_x, _y} | _] = locations) do

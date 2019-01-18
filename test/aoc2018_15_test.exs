@@ -1,9 +1,10 @@
 defmodule AOC2018_15Test do
   use ExUnit.Case
 
-  @tag :skip
   test "solves part 1" do
     assert AOC2018_15.solveA(read_input()) == :ok
+    # lower than 198080
+    # lower than 196789
   end
 
   @tag :skip
@@ -267,6 +268,84 @@ defmodule AOC2018_15Test do
 
   test "full game auto" do
     assert AOC2018_15.solveA(@game) == 27730
+  end
+
+  test "game 2" do
+    #######       #######
+    #G..#E#       #...#E#   E(200)
+    #E#E.E#       #E#...#   E(197)
+    #G.##.#  -->  #.E##.#   E(185)
+    #...#E#       #E..#E#   E(200), E(200)
+    #...E.#       #.....#
+    #######       #######
+
+    game2 = """
+    #######
+    #G..#E#
+    #E#E.E#
+    #G.##.#
+    #...#E#
+    #...E.#
+    #######
+    """
+
+    assert AOC2018_15.solveA(game2) == 36334
+  end
+
+  test "game 3" do
+    #######       #######
+    #E..EG#       #.E.E.#   E(164), E(197)
+    #.#G.E#       #.#E..#   E(200)
+    #E.##E#  -->  #E.##.#   E(98)
+    #G..#.#       #.E.#.#   E(200)
+    #..E#.#       #...#.#
+    #######       #######
+
+    # Combat ends after 46 full rounds
+    # Elves win with 859 total hit points left
+    # Outcome: 46 * 859 = 39514
+
+    game3 = """
+    #######
+    #E..EG#
+    #.#G.E#
+    #E.##E#
+    #G..#.#
+    #..E#.#
+    #######
+    """
+
+    assert AOC2018_15.solveA(game3) == 39514
+  end
+
+  test "game 4" do
+    #########       #########
+    #G......#       #.G.....#   G(137)
+    #.E.#...#       #G.G#...#   G(200), G(200)
+    #..##..G#       #.G##...#   G(200)
+    #...##..#  -->  #...##..#
+    #...#...#       #.G.#...#   G(200)
+    #.G...G.#       #.......#
+    #.....G.#       #.......#
+    #########       #########
+
+    # Combat ends after 20 full rounds
+    # Goblins win with 937 total hit points left
+    # Outcome: 20 * 937 = 18740
+
+    game4 = """
+    #########
+    #G......#
+    #.E.#...#
+    #..##..G#
+    #...##..#
+    #...#...#
+    #.G...G.#
+    #.....G.#
+    #########
+    """
+
+    assert AOC2018_15.solveA(game4) == 18740
   end
 
   @tag :skip
