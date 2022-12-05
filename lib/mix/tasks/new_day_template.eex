@@ -1,4 +1,4 @@
-defmodule AOC2018_<%= day %> do
+defmodule AOC2022_<%= day %> do
 
   def solveA(input) do
     nil

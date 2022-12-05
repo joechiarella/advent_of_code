@@ -5,15 +5,15 @@ defmodule Mix.Tasks.AocNew do
     day = to_string(day) |> String.pad_leading(2, "0")
     data = [day: day]
 
-    render_template("lib/mix/tasks/new_day_template.eex", "lib/aoc2018_#{day}.ex", data)
+    render_template("lib/mix/tasks/new_day_template.eex", "lib/aoc2022_#{day}.ex", data)
 
     render_template(
       "lib/mix/tasks/new_day_test_template.eex",
-      "test/aoc2018_#{day}_test.exs",
+      "test/aoc2022_#{day}_test.exs",
       data
     )
 
-    write_file("test/data/2018_#{day}_input.txt", "")
+    write_file("test/data/2022_#{day}_input.txt", "")
 
     Mix.shell().info("Generated module, test, and data files for day \"#{day}\"")
   end
